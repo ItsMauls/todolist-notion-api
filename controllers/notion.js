@@ -1,7 +1,9 @@
 import { databaseId, notion } from '../config/notion.js';
-import { allListsCommand } from '../util/command.js';
+import { blue } from '../util/color-text.js';
+import { allListsCommand, errorCommand } from '../util/command.js';
 import { dateNow } from '../util/date.js';
 import { idGenerator } from '../util/idGenerator.js';
+
 
 //FIND TODO BY ID
 export async function queryDatabase(id) {
@@ -17,7 +19,7 @@ export async function queryDatabase(id) {
         });  
       return response.results[0].id;
   } catch (error){
-      console.log(error.body);
+    //   console.log(error.body);
   }
 }
 //FIND ALL TODO
@@ -41,7 +43,6 @@ export async function getTodoLists() {
           const status = data.Status.checkbox ? 'X' : ''
           const name = data.Name.rich_text[0].plain_text
           allListsCommand(id,status, name)
-          
       })
   } catch (error){
       console.log(error.body);
@@ -52,6 +53,10 @@ export async function getTodoLists() {
 //CREATE TODO
 export async function addToDatabase(name) {
   try {
+    if(name.length < 3) {
+        errorCommand('add', 'Name length must above 2')
+        return
+    }
       const response = await notion.pages.create({
           parent: {
               database_id: databaseId,
@@ -92,6 +97,8 @@ export async function addToDatabase(name) {
           }    
       });
       // console.log(response);
+    //   getTodoLists()
+      blue(`${name} Added to your TODO`)
   } catch (error) {
       console.error(error.body);
   }
@@ -103,12 +110,14 @@ export async function updateItem(status, id) {
               const { results } = await getAllDatabase()
               let tempPageId
               const pageId = await queryDatabase(id)
+
+              if(!pageId) throw ({name : 'NotFound'})
+    
               results.forEach(val => {
                   const MAUNOTION_ID = val.properties.ID.title[0].plain_text
                   if(MAUNOTION_ID.split('-')[1].slice(0,3) === id) tempPageId = pageId
               })
-          
-          
+              
               const response = await notion.pages.update({
                   page_id: pageId || tempPageId,
                   properties: {
@@ -123,9 +132,9 @@ export async function updateItem(status, id) {
                       },
                   },
                   });
-          
-          } catch (error) {
-              console.log(error.body);
+                  blue(`Task with id ${id} checked!`)
+          } catch (e) {
+            if(e.name === 'NotFound') errorCommand('done', 'Id not found!')
           }
 }
 
@@ -135,6 +144,11 @@ export async function deleteItem(id) {
       const { results } = await getAllDatabase()
       let tempPageId
       const pageId = await queryDatabase(id)
+
+      if(!pageId) {
+        throw ({name : 'NotFound'})
+      }
+
       results.forEach(val => {
           const MAUNOTION_ID = val.properties.ID.title[0].plain_text
           if(MAUNOTION_ID.split('-')[1].slice(0,3) === id) tempPageId = pageId
@@ -143,9 +157,9 @@ export async function deleteItem(id) {
       await notion.blocks.delete({
           block_id: pageId,
       });
-  
-  } catch (error) {
-      console.log(error.body);
+      blue(`${id} Deleted!!`)
+  } catch (e) {
+      if(e.name === 'NotFound') errorCommand('delete', 'Id not found!')
   }
 }
 

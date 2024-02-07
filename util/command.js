@@ -1,3 +1,5 @@
+import { red } from "./color-text.js";
+
 export const listCommand = `
 list : Login your Notion account
 add : Add your ToDo to Notion Account`
@@ -8,4 +10,10 @@ ID : ${id}
 Checkbox : [${status}]
 Name : ${name}
 `);
+}
+
+export const errorCommand = (c, msg) => {
+    red('Error : ' + msg)
+    console.log(`Correct command : maunotion ${c} <items>`)
+    console.log('Try "maunotion help" to see all available commands')
 }

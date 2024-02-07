@@ -5,6 +5,7 @@ import yargs from 'yargs'
 import { blue } from '../util/color-text.js';
 import { f } from '../util/figlet.js';
 import { addToDatabase, updateItem, deleteItem, getTodoLists } from "../controllers/notion.js";
+import { errorCommand } from "../util/command.js";
 
 yargs(hideBin(process.argv))
     .scriptName('maunotion')
@@ -28,10 +29,15 @@ yargs(hideBin(process.argv))
         },
         handler : (argv) => {
             const { items } = argv
+
+            if(items.length === 0) {
+                errorCommand('done', 'Items must not empty!')
+                return
+            }
             items.forEach(i => {
                 updateItem(true, i)
             })
-            blue('Please hit CTRL+C in terminal to continue')
+            
         }
     })
     .command({
@@ -47,11 +53,15 @@ yargs(hideBin(process.argv))
         },
         handler: (argv) => {
             const { items } = argv
+
+            if(items.length === 0) {
+                errorCommand('add', 'Items must not empty!')
+                return
+            }
+
             items.forEach(i => {
                 addToDatabase(i)
             })
-            getTodoLists()
-            blue('Please hit CTRL+C in terminal to continue')
         }
     })
     .command({
@@ -67,10 +77,15 @@ yargs(hideBin(process.argv))
         },
         handler: (argv) => {
             const { items } = argv
+
+            if(items.length === 0) {
+                errorCommand('delete', 'Items must not empty!')
+                return
+            }
+
             items.forEach(i => {
                 deleteItem(i)
             })
-            blue('Please hit CTRL+C in terminal to continue')
         }
     })
     .exitProcess(true)
