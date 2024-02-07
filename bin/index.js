@@ -2,7 +2,6 @@
 import { hideBin } from "yargs/helpers";
 import yargs from 'yargs'
 
-import { blue } from '../util/color-text.js';
 import { f } from '../util/figlet.js';
 import { addToDatabase, updateItem, deleteItem, getTodoLists } from "../controllers/notion.js";
 import { errorCommand } from "../util/command.js";
@@ -11,7 +10,7 @@ yargs(hideBin(process.argv))
     .scriptName('maunotion')
     .command('list', 'List all tasks', {}, () => {
         getTodoLists()
-        blue('Please hit CTRL+C in terminal to continue')
+        // blue('Please hit CTRL+C in terminal to continue')
     })
     .command('info', 'Detail information about MauNotion', {}, () => {
         f('MauNotion');

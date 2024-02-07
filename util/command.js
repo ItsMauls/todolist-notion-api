@@ -1,8 +1,6 @@
 import { red } from "./color-text.js";
 
-export const listCommand = `
-list : Login your Notion account
-add : Add your ToDo to Notion Account`
+export const welcomeCommand = `Welcome to maunotion-cli`
 
 export const allListsCommand = (id, status, name) => {
 console.log(`
